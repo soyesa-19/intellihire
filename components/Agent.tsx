@@ -117,12 +117,14 @@ const Agent = ({
   const handleCall = async () => {
     setCallStatus(CallStatus.CONNECTING);
 
+    console.log("workflowid", process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID);
+
     if (type === "generate") {
       await vapi.start(
         undefined,
         undefined,
         undefined,
-        process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!,
+        "5cc13138-dee6-43a7-902c-07f48c318b04",
         {
           variableValues: {
             username: userName,
