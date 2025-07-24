@@ -32,10 +32,13 @@ interface CreateFeedbackParams {
   feedbackId?: string;
 }
 
+type UserType = "user" | "admin";
+
 interface User {
   name: string;
   email: string;
   id: string;
+  role: UserType;
 }
 
 interface InterviewCardProps {

@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/lib/actions/auth.action";
 const Page = async () => {
   const user = await getCurrentUser();
 
-  return (
+  return user?.role === "admin" ? (
     <>
       <h3>Interview generation</h3>
 
@@ -15,6 +15,8 @@ const Page = async () => {
         type="generate"
       />
     </>
+  ) : (
+    <h3>Not authorised</h3>
   );
 };
 
