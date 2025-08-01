@@ -2,25 +2,27 @@ import dayjs from "dayjs";
 import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
-
 import {
   getFeedbackByInterviewId,
   getInterviewById,
+  getUserById,
 } from "@/lib/actions/general.action";
 import { Button } from "@/components/ui/button";
-import { getCurrentUser } from "@/lib/actions/auth.action";
 
-const Feedback = async ({ params }: RouteParams) => {
+const Feedback = async ({ params, searchParams }: RouteParams) => {
+  console.log(params);
   const { id } = await params;
-  const user = await getCurrentUser();
+  const { userId } = await searchParams;
 
   const interview = await getInterviewById(id);
   if (!interview) redirect("/");
 
   const feedback = await getFeedbackByInterviewId({
     interviewId: id,
-    userId: user?.id!,
+    userId: userId!,
   });
+
+  const user = await getUserById(userId);
 
   return (
     <section className="section-feedback">
@@ -34,6 +36,8 @@ const Feedback = async ({ params }: RouteParams) => {
       <div className="flex flex-row justify-center ">
         <div className="flex flex-row gap-5">
           {/* Overall Impression */}
+          <p>Name of Candidate : {user?.name}</p>
+
           <div className="flex flex-row gap-2 items-center">
             <Image src="/star.svg" width={22} height={22} alt="star" />
             <p>
@@ -101,7 +105,7 @@ const Feedback = async ({ params }: RouteParams) => {
           </Link>
         </Button>
 
-        <Button className="btn-primary flex-1">
+        {/* <Button className="btn-primary flex-1">
           <Link
             href={`/interview/${id}`}
             className="flex w-full justify-center"
@@ -110,7 +114,7 @@ const Feedback = async ({ params }: RouteParams) => {
               Retake Interview
             </p>
           </Link>
-        </Button>
+        </Button> */}
       </div>
     </section>
   );

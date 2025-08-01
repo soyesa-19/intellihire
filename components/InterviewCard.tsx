@@ -6,7 +6,12 @@ import { Button } from "./ui/button";
 import DisplayTechIcons from "./DisplayTechIcons";
 
 import { cn, getRandomInterviewCover } from "@/lib/utils";
-import { getFeedbackByInterviewId } from "@/lib/actions/general.action";
+import {
+  getFeedbackByInterviewId,
+  getAllUsers,
+} from "@/lib/actions/general.action";
+import { getCurrentUser } from "@/lib/actions/auth.action";
+import FeedbackModalButton from "./FeedbackModalButton";
 
 const InterviewCard = async ({
   interviewId,
@@ -16,6 +21,7 @@ const InterviewCard = async ({
   techstack,
   createdAt,
 }: InterviewCardProps) => {
+  const user = await getCurrentUser();
   const feedback =
     userId && interviewId
       ? await getFeedbackByInterviewId({
@@ -36,6 +42,11 @@ const InterviewCard = async ({
   const formattedDate = dayjs(
     feedback?.createdAt || createdAt || Date.now()
   ).format("MMM D, YYYY");
+
+  let interviewTakenByUsers;
+  if (interviewId) {
+    interviewTakenByUsers = await getAllUsers(interviewId);
+  }
 
   return (
     <div className="card-border w-[360px] max-sm:w-full min-h-96">
@@ -75,10 +86,12 @@ const InterviewCard = async ({
               <p>{formattedDate}</p>
             </div>
 
-            <div className="flex flex-row gap-2 items-center">
-              <Image src="/star.svg" width={22} height={22} alt="star" />
-              <p>{feedback?.totalScore || "---"}/100</p>
-            </div>
+            {user?.role === "admin" && (
+              <div className="flex flex-row gap-2 items-center">
+                <Image src="/star.svg" width={22} height={22} alt="star" />
+                <p>{feedback?.totalScore || "---"}/100</p>
+              </div>
+            )}
           </div>
 
           {/* Feedback or Placeholder Text */}
@@ -91,17 +104,30 @@ const InterviewCard = async ({
         <div className="flex flex-row justify-between">
           <DisplayTechIcons techStack={techstack} />
 
-          <Button className="btn-primary">
-            <Link
-              href={
-                feedback
-                  ? `/interview/${interviewId}/feedback`
-                  : `/interview/${interviewId}`
-              }
-            >
-              {feedback ? "Check Feedback" : "View Interview"}
-            </Link>
-          </Button>
+          {/* Admin: Show Check Feedback if feedback exists, else show 'Interview yet to be taken' */}
+          {user?.role === "admin" &&
+            (feedback ? (
+              <FeedbackModalButton
+                users={interviewTakenByUsers}
+                interviewId={interviewId}
+              />
+            ) : (
+              <div className="flex items-center px-4 py-2 text-gray-500 border rounded-lg bg-light-200">
+                Interview yet to be taken
+              </div>
+            ))}
+
+          {/* Non-admin: Show View Interview if feedback does not exist, else show 'Interview Taken' */}
+          {user?.role !== "admin" &&
+            (!feedback ? (
+              <Button className="btn-primary">
+                <Link href={`/interview/${interviewId}`}>View Interview</Link>
+              </Button>
+            ) : (
+              <div className="flex items-center px-4 py-2 text-green-600 border rounded-lg bg-light-200">
+                Interview Taken
+              </div>
+            ))}
         </div>
       </div>
     </div>

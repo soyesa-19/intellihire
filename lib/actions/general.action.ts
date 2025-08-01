@@ -123,3 +123,43 @@ export async function getInterviewsByUserId(
     ...doc.data(),
   })) as Interview[];
 }
+
+export async function getAllUsers(interviewId: string): Promise<User[]> {
+  const feedbacks = await db
+    .collection("feedback")
+    .where("interviewId", "==", interviewId)
+    .get();
+
+  const userIds = feedbacks.docs.map((doc) => doc.data().userId);
+
+  if (userIds.length === 0) return [];
+
+  // Firestore 'in' queries support up to 10 values per query
+  const BATCH_SIZE = 10;
+  const userBatches = [];
+  for (let i = 0; i < userIds.length; i += BATCH_SIZE) {
+    userBatches.push(userIds.slice(i, i + BATCH_SIZE));
+  }
+
+  const userResults = await Promise.all(
+    userBatches.map(async (batch) => {
+      const usersSnapshot = await db
+        .collection("users")
+        .where("__name__", "in", batch)
+        .get();
+      return usersSnapshot.docs.map(
+        (doc) => ({ id: doc.id, ...doc.data() } as User)
+      );
+    })
+  );
+
+  // Flatten the array of arrays
+  return userResults.flat();
+}
+
+export async function getUserById(userId: string): Promise<User | null> {
+  const userDoc = await db.collection("users").doc(userId).get();
+  if (!userDoc.exists) return null;
+
+  return { id: userDoc.id, ...userDoc.data() } as User;
+}

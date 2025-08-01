@@ -98,11 +98,12 @@ const Agent = ({
       });
 
       if (success && id) {
-        router.push(`/interview/${interviewId}/feedback`);
+        alert("Interview completed, we will get back to you shortly.!");
+        // router.push(`/interview/${interviewId}/feedback`);
       } else {
         console.log("Error saving feedback");
-        router.push("/");
       }
+      router.push("/");
     };
 
     if (callStatus === CallStatus.FINISHED) {
