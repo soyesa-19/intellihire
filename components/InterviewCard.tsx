@@ -9,6 +9,7 @@ import { cn, getRandomInterviewCover } from "@/lib/utils";
 import {
   getFeedbackByInterviewId,
   getAllUsers,
+  getFeedback,
 } from "@/lib/actions/general.action";
 import { getCurrentUser } from "@/lib/actions/auth.action";
 import FeedbackModalButton from "./FeedbackModalButton";
@@ -25,6 +26,14 @@ const InterviewCard = async ({
   const feedback =
     userId && interviewId
       ? await getFeedbackByInterviewId({
+          interviewId,
+          userId,
+        })
+      : null;
+
+  const feedbackByInterviewId =
+    userId && interviewId
+      ? await getFeedback({
           interviewId,
           userId,
         })
@@ -86,7 +95,7 @@ const InterviewCard = async ({
               <p>{formattedDate}</p>
             </div>
 
-            {user?.role === "admin" && (
+            {user?.role !== "admin" && (
               <div className="flex flex-row gap-2 items-center">
                 <Image src="/star.svg" width={22} height={22} alt="star" />
                 <p>{feedback?.totalScore || "---"}/100</p>
@@ -95,10 +104,13 @@ const InterviewCard = async ({
           </div>
 
           {/* Feedback or Placeholder Text */}
-          <p className="line-clamp-2 mt-5">
-            {feedback?.finalAssessment ||
-              "You haven't taken this interview yet. Take it now to improve your skills."}
-          </p>
+          {user?.role !== "admin" && (
+            <p className="line-clamp-2 mt-5">
+              {feedback?.finalAssessment
+                ? "Your interview is completed. If selected, we will get back to you shortly. All the best!"
+                : "You haven't taken this interview yet. Take it now to improve your skills."}
+            </p>
+          )}
         </div>
 
         <div className="flex flex-row justify-between">
@@ -106,7 +118,7 @@ const InterviewCard = async ({
 
           {/* Admin: Show Check Feedback if feedback exists, else show 'Interview yet to be taken' */}
           {user?.role === "admin" &&
-            (feedback ? (
+            (feedbackByInterviewId ? (
               <FeedbackModalButton
                 users={interviewTakenByUsers}
                 interviewId={interviewId}
