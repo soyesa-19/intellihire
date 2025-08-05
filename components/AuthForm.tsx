@@ -6,7 +6,7 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { auth } from "@/firebase/client";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
@@ -30,6 +30,9 @@ const authFormSchema = (type: FormType) => {
 
 const AuthForm = ({ type }: { type: FormType }) => {
   const router = useRouter();
+
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get("redirect");
 
   const formSchema = authFormSchema(type);
   const form = useForm<z.infer<typeof formSchema>>({
@@ -87,7 +90,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
         });
 
         toast.success("Signed in successfully.");
-        router.push("/");
+        router.push(redirectUrl || "/");
       }
     } catch (error) {
       console.log(error);
@@ -99,14 +102,18 @@ const AuthForm = ({ type }: { type: FormType }) => {
 
   return (
     <div className="card-border lg:min-w-[566px]">
-      <div className="flex flex-col gap-6 card py-14 px-10">
+      <div className="flex flex-col gap-6 card py-14 px-10 items-center">
         <div className="flex flex-row gap-2 justify-center">
-          <Image src="/logo.svg" alt="logo" height={32} width={38} />
+          <Image
+            src="/this_logo.png"
+            alt="logo"
+            height={28}
+            width={38}
+            style={{ borderRadius: "8px" }}
+          />
           <h2 className="text-primary-100">Intellihire</h2>
         </div>
-
-        <h3>Practice job interviews with AI</h3>
-
+        <h3>Start your career with THIS</h3>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}

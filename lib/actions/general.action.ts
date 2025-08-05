@@ -141,6 +141,18 @@ export async function getInterviewsByUserId(
   })) as Interview[];
 }
 
+export async function getAllInterviews() {
+  const interviews = await db
+    .collection("interviews")
+    .orderBy("createdAt", "desc")
+    .get();
+
+  return interviews.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  })) as Interview[];
+}
+
 export async function getAllUsers(interviewId: string): Promise<User[]> {
   const feedbacks = await db
     .collection("feedback")

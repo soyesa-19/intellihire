@@ -4,6 +4,7 @@ import Image from "next/image";
 
 import { Button } from "./ui/button";
 import DisplayTechIcons from "./DisplayTechIcons";
+import CopyInterviewLink from "./CopyInterviewLink";
 
 import { cn, getRandomInterviewCover } from "@/lib/utils";
 import {
@@ -72,14 +73,16 @@ const InterviewCard = async ({
           </div>
 
           {/* Cover Image */}
-          <Image
-            src={getRandomInterviewCover()}
-            alt="cover-image"
-            width={90}
-            height={90}
-            className="rounded-full object-fit size-[90px]"
-          />
-
+          <div className="flex flex-row justify-between items-center">
+            <Image
+              src={getRandomInterviewCover()}
+              alt="cover-image"
+              width={90}
+              height={90}
+              className="rounded-full object-fit size-[90px]"
+            />
+            <CopyInterviewLink interviewId={interviewId} />
+          </div>
           {/* Interview Role */}
           <h3 className="mt-5 capitalize">{role} Interview</h3>
 
@@ -108,13 +111,15 @@ const InterviewCard = async ({
             <p className="line-clamp-2 mt-5">
               {feedback?.finalAssessment
                 ? "Your interview is completed. If selected, we will get back to you shortly. All the best!"
-                : "You haven't taken this interview yet. Take it now to improve your skills."}
+                : "You haven't taken this interview yet. Take it now."}
             </p>
           )}
         </div>
 
-        <div className="flex flex-row justify-between">
+        <div className="flex flex-row justify-between items-center gap-2">
           <DisplayTechIcons techStack={techstack} />
+
+          {/* Copy link icon */}
 
           {/* Admin: Show Check Feedback if feedback exists, else show 'Interview yet to be taken' */}
           {user?.role === "admin" &&
@@ -133,7 +138,7 @@ const InterviewCard = async ({
           {user?.role !== "admin" &&
             (!feedback ? (
               <Button className="btn-primary">
-                <Link href={`/interview/${interviewId}`}>View Interview</Link>
+                <Link href={`/interview/${interviewId}`}>Take Interview</Link>
               </Button>
             ) : (
               <div className="flex items-center px-4 py-2 text-green-600 border rounded-lg bg-light-200">

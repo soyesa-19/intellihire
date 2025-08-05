@@ -6,6 +6,7 @@ import InterviewCard from "@/components/InterviewCard";
 
 import { getCurrentUser } from "@/lib/actions/auth.action";
 import {
+  getAllInterviews,
   getInterviewsByUserId,
   getLatestInterviews,
 } from "@/lib/actions/general.action";
@@ -18,6 +19,8 @@ async function Home() {
     getLatestInterviews({ userId: user?.id! }),
   ]);
 
+  const allInterviews = await getAllInterviews();
+
   const hasPastInterviews = userInterviews?.length! > 0;
   const hasUpcomingInterviews = allInterview?.length! > 0;
 
@@ -25,9 +28,15 @@ async function Home() {
     <>
       <section className="card-cta">
         <div className="flex flex-col gap-6 max-w-lg">
-          <h2>Get Interview-Ready with AI-Powered Practice & Feedback</h2>
+          <h2>
+            {user?.role === "admin"
+              ? "Create interviews for the selected candidates."
+              : "Congratulations on making it this far. The next step is the interview."}
+          </h2>
           <p className="text-lg">
-            Practice real interview questions & get instant feedback
+            {user?.role === "admin"
+              ? "Get the best brains onboard."
+              : "Go ahead and take the interview."}
           </p>
 
           {user?.role === "admin" && (
@@ -46,7 +55,7 @@ async function Home() {
         />
       </section>
 
-      <section className="flex flex-col gap-6 mt-8">
+      {/* <section className="flex flex-col gap-6 mt-8">
         <h2>Your Interviews</h2>
 
         <div className="interviews-section">
@@ -66,14 +75,14 @@ async function Home() {
             <p>You haven&apos;t taken any interviews yet</p>
           )}
         </div>
-      </section>
+      </section> */}
 
       <section className="flex flex-col gap-6 mt-8">
         <h2>Take Interviews</h2>
 
         <div className="interviews-section">
-          {hasUpcomingInterviews ? (
-            allInterview?.map((interview) => (
+          {allInterviews ? (
+            allInterviews?.map((interview) => (
               <InterviewCard
                 key={interview.id}
                 userId={user?.id}
